@@ -35,3 +35,17 @@ npm run build
 2. В Render нажмите **New +** -> **Blueprint**.
 3. Подключите репозиторий и подтвердите создание сервисов из `render.yaml`.
 4. После деплоя откройте URL `qwiz-frontend` — сайт станет публично доступен.
+
+## Деплой frontend на GitHub Pages
+
+В проект добавлен workflow `.github/workflows/deploy-pages.yml`, который публикует только `frontend` на GitHub Pages при пуше в `main`.
+
+1. Откройте репозиторий в GitHub -> `Settings` -> `Pages`.
+2. В `Build and deployment` выберите `Source: GitHub Actions`.
+3. Сделайте push в `main` (или вручную запустите workflow `Deploy Frontend to GitHub Pages` во вкладке `Actions`).
+4. После успешного деплоя страница будет доступна по адресу:
+   `https://alex-de-vep.github.io/qwiz/`
+
+Важно:
+- GitHub Pages разворачивает только статический frontend.
+- `backend` (Nuxt API) на Pages не запускается, его нужно деплоить отдельно (например, Timeweb/Amvera/VPS).
