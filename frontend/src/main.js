@@ -44,7 +44,7 @@ const render = () => {
   }
 
   if (path === '/games') {
-    renderGameSelectPage(app, {
+    pageCleanup = renderGameSelectPage(app, {
       onSelectGame: (route) => navigateTo(route)
     })
     return

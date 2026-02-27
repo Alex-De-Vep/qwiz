@@ -51,7 +51,7 @@ body {
 }
 
 .page--games {
-  width: min(100%, 760px);
+  width: min(100%, 1180px);
 }
 
 .card--auth {
@@ -348,6 +348,20 @@ body {
 
 .quiz-workspace--split {
   grid-template-columns: minmax(0, 760px) 360px;
+}
+
+.quiz-workspace--games.quiz-workspace--single {
+  grid-template-columns: minmax(0, 760px);
+}
+
+.quiz-workspace--games.quiz-workspace--split {
+  grid-template-columns: minmax(0, 760px) 360px;
+}
+
+.games-header-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 14px;
 }
 
 .quiz-window {
