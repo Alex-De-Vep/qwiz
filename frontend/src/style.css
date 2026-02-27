@@ -691,9 +691,9 @@ body {
 .snake-shell {
   border: 1px solid #eceff3;
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .snake-intro {
@@ -724,6 +724,18 @@ body {
   color: #a16207;
 }
 
+.snake-game-block {
+  display: grid;
+  gap: 8px;
+}
+
+.snake-restart-button {
+  width: 100%;
+  min-width: 0;
+  font-size: 13px;
+  padding: 7px 10px;
+}
+
 .snake-canvas-wrap {
   width: 100%;
   display: grid;
@@ -731,7 +743,8 @@ body {
 }
 
 .snake-canvas {
-  width: min(100%, 360px);
+  width: 100%;
+  max-width: 360px;
   height: auto;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
@@ -739,20 +752,68 @@ body {
   touch-action: none;
 }
 
-.snake-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.snake-score-panel {
+  width: min(100%, 360px);
+  margin: 0 auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 8px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
 }
 
-.snake-action-button {
-  min-width: 120px;
+.snake-score-caption {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.snake-score-value {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #7f1d1d;
+}
+
+.snake-score-track {
+  flex: 1 1 auto;
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.snake-score-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent) 0%, #ff7774 100%);
+  transition: width 0.2s ease;
+}
+
+.snake-score-target {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.snake-score-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
 .snake-controls-label {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   color: #64748b;
+  text-align: center;
 }
 
 .snake-pad {
@@ -760,7 +821,7 @@ body {
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 .snake-pad-empty {
@@ -771,6 +832,13 @@ body {
   min-height: 46px;
   font-size: 20px;
   padding: 6px 0;
+}
+
+@media (min-width: 961px) {
+  .snake-pad,
+  .snake-controls-label {
+    display: none;
+  }
 }
 
 .text-answer-form {
@@ -952,18 +1020,16 @@ body {
     min-height: 58px;
   }
 
-  .snake-actions {
-    grid-template-columns: 1fr;
-    display: grid;
+  .snake-canvas {
+    max-width: 300px;
   }
 
-  .snake-action-button {
-    width: 100%;
-    min-width: 0;
+  .snake-score-panel {
+    max-width: 300px;
   }
 
   .snake-pad-button {
-    min-height: 52px;
+    min-height: 46px;
   }
 }
 

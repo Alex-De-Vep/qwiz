@@ -8,7 +8,7 @@ import {
   createSnakeRound,
   createSnakeFood
 } from '../utils/snakeGame'
-import { saveSnakeResult } from '../utils/gameProgress'
+import { GAME_GOALS, saveSnakeResult } from '../utils/gameProgress'
 
 export const renderSnakePage = (root, options = {}) => {
   const onBackToGames = typeof options.onBackToGames === 'function' ? options.onBackToGames : null
@@ -53,6 +53,9 @@ export const renderSnakePage = (root, options = {}) => {
     const status = document.createElement('p')
     status.className = 'snake-status'
 
+    const gameBlock = document.createElement('div')
+    gameBlock.className = 'snake-game-block'
+
     const canvasWrap = document.createElement('div')
     canvasWrap.className = 'snake-canvas-wrap'
 
@@ -62,20 +65,30 @@ export const renderSnakePage = (root, options = {}) => {
     canvas.height = SNAKE_GRID_SIZE * 20
     canvasWrap.append(canvas)
 
-    const actions = document.createElement('div')
-    actions.className = 'snake-actions'
+    const scorePanel = document.createElement('aside')
+    scorePanel.className = 'snake-score-panel'
 
-    const startButton = createButton({
-      text: 'Старт',
-      variant: 'solid'
-    })
-    startButton.classList.add('snake-action-button')
+    const scoreCaption = document.createElement('p')
+    scoreCaption.className = 'snake-score-caption'
+    scoreCaption.textContent = 'Очки'
 
-    const pauseButton = createButton({
-      text: 'Пауза',
-      variant: 'outline'
-    })
-    pauseButton.classList.add('snake-action-button')
+    const scoreValue = document.createElement('p')
+    scoreValue.className = 'snake-score-value'
+
+    const scoreTrack = document.createElement('div')
+    scoreTrack.className = 'snake-score-track'
+
+    const scoreFill = document.createElement('span')
+    scoreFill.className = 'snake-score-fill'
+    scoreTrack.append(scoreFill)
+
+    const scoreTarget = document.createElement('p')
+    scoreTarget.className = 'snake-score-target'
+    scoreTarget.textContent = `Цель: ${GAME_GOALS.snakeTargetScore}`
+
+    const scoreTopRow = document.createElement('div')
+    scoreTopRow.className = 'snake-score-top-row'
+    scoreTopRow.append(scoreValue, scoreTarget)
 
     const restartButton = createButton({
       text: 'Новая игра',
@@ -85,13 +98,13 @@ export const renderSnakePage = (root, options = {}) => {
         renderSnake()
       }
     })
-    restartButton.classList.add('snake-action-button')
+    restartButton.classList.add('snake-restart-button')
 
-    actions.append(startButton, pauseButton, restartButton)
+    scorePanel.append(scoreCaption, scoreTopRow, scoreTrack, restartButton)
 
     const controlsLabel = document.createElement('p')
     controlsLabel.className = 'snake-controls-label'
-    controlsLabel.textContent = 'Управление: стрелки, WASD или тапы по кнопкам ниже.'
+    controlsLabel.textContent = 'Управление: стрелки клавиатуры или кнопки ниже.'
 
     const pad = document.createElement('div')
     pad.className = 'snake-pad'
@@ -133,7 +146,8 @@ export const renderSnakePage = (root, options = {}) => {
       emptyBottomRight
     )
 
-    shell.append(intro, status, canvasWrap, actions, controlsLabel, pad)
+    gameBlock.append(canvasWrap, scorePanel, controlsLabel, pad)
+    shell.append(intro, status, gameBlock)
     content.append(shell)
 
     const ctx = canvas.getContext('2d')
@@ -194,32 +208,17 @@ export const renderSnakePage = (root, options = {}) => {
       if (snakeRound.status === 'gameover') {
         status.textContent = 'Столкновение. Нажмите «Новая игра», чтобы начать заново.'
         status.classList.add('snake-status--warn')
-        startButton.disabled = true
-        pauseButton.disabled = true
         return
       }
 
-      if (snakeRound.status === 'running') {
-        status.textContent = 'Игра идет. Держите темп.'
-        status.classList.add('snake-status--good')
-        startButton.disabled = true
-        pauseButton.disabled = false
-        return
-      }
-
-      if (snakeRound.status === 'paused') {
-        status.textContent = 'Пауза. Нажмите «Старт», чтобы продолжить.'
-        startButton.disabled = false
-        pauseButton.disabled = true
-        return
-      }
-
-      status.textContent = 'Нажмите «Старт», чтобы начать раунд.'
-      startButton.disabled = false
-      pauseButton.disabled = true
+      status.textContent = 'Игра идет. Держите темп.'
+      status.classList.add('snake-status--good')
     }
 
     const refreshView = () => {
+      const scorePercent = Math.min((snakeRound.score / GAME_GOALS.snakeTargetScore) * 100, 100)
+      scoreValue.textContent = `${snakeRound.score}/${GAME_GOALS.snakeTargetScore}`
+      scoreFill.style.width = `${scorePercent}%`
       updateProgress()
       updateStatus()
       drawSnake()
@@ -265,24 +264,10 @@ export const renderSnakePage = (root, options = {}) => {
       refreshView()
     }
 
-    const startSnake = () => {
-      if (snakeRound.status === 'gameover') {
-        return
-      }
-
+    const startTicker = () => {
       snakeRound.status = 'running'
       stopTicker()
       tickerId = setInterval(tick, snakeRound.speedMs)
-      refreshView()
-    }
-
-    const pauseSnake = () => {
-      if (snakeRound.status !== 'running') {
-        return
-      }
-
-      snakeRound.status = 'paused'
-      stopTicker()
       refreshView()
     }
 
@@ -292,9 +277,6 @@ export const renderSnakePage = (root, options = {}) => {
         return
       }
       setSnakeDirection(direction)
-      if (snakeRound.status === 'idle' || snakeRound.status === 'paused') {
-        startSnake()
-      }
     }
 
     const onKeyDown = (event) => {
@@ -302,11 +284,7 @@ export const renderSnakePage = (root, options = {}) => {
         ArrowUp: 'up',
         ArrowDown: 'down',
         ArrowLeft: 'left',
-        ArrowRight: 'right',
-        w: 'up',
-        s: 'down',
-        a: 'left',
-        d: 'right'
+        ArrowRight: 'right'
       }
 
       const direction = directionByKey[event.key]
@@ -316,9 +294,6 @@ export const renderSnakePage = (root, options = {}) => {
 
       event.preventDefault()
       setSnakeDirection(direction)
-      if (snakeRound.status === 'idle' || snakeRound.status === 'paused') {
-        startSnake()
-      }
     }
 
     const onTouchStart = (event) => {
@@ -341,14 +316,8 @@ export const renderSnakePage = (root, options = {}) => {
       } else {
         setSnakeDirection(deltaY > 0 ? 'down' : 'up')
       }
-
-      if (snakeRound.status === 'idle' || snakeRound.status === 'paused') {
-        startSnake()
-      }
     }
 
-    startButton.addEventListener('click', startSnake)
-    pauseButton.addEventListener('click', pauseSnake)
     upButton.addEventListener('click', onPadPress)
     leftButton.addEventListener('click', onPadPress)
     rightButton.addEventListener('click', onPadPress)
@@ -357,7 +326,7 @@ export const renderSnakePage = (root, options = {}) => {
     canvas.addEventListener('touchstart', onTouchStart, { passive: true })
     canvas.addEventListener('touchend', onTouchEnd, { passive: true })
 
-    refreshView()
+    startTicker()
 
     runtimeCleanup = () => {
       stopTicker()
