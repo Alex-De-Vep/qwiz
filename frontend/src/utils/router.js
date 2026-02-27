@@ -6,10 +6,17 @@ const normalizeRoute = (hash) => {
   return hash.replace('#', '')
 }
 
-export const getRoute = () => normalizeRoute(window.location.hash)
+export const getRoute = () => {
+  const normalized = normalizeRoute(window.location.hash)
+  const [path, query = ''] = normalized.split('?')
+  const params = Object.fromEntries(new URLSearchParams(query))
 
-export const navigateTo = (route) => {
-  window.location.hash = route
+  return { path, params }
+}
+
+export const navigateTo = (route, params = {}) => {
+  const query = new URLSearchParams(params).toString()
+  window.location.hash = query ? `${route}?${query}` : route
 }
 
 export const onRouteChange = (handler) => {
